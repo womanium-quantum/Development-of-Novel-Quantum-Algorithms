@@ -15,7 +15,7 @@ _**Include all necessary information only as per the given format.**_
   - All nationalities, genders, and age groups are welcome to participate in the projects.
   - All team participants must be enrolled in Womanium Quantum+AI 2024.
   - Everyone is eligible to participate in this project and win Womanium grants.
-  - Everyone is eligible for Womanium QSL fellowships with Classiq.
+  - Best participants win Womanium QSL fellowships with Classiq.
   - All successful project submissions earn the Womanium Project Certificate.
 
 ### Project Description:
