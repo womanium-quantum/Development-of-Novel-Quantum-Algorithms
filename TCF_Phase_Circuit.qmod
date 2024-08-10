@@ -1,0 +1,62 @@
+// Function for applying nested phase rotations based on qubit indices and modulus N
+qfunc phase_rot(x: qbit[], N: int) {
+  repeat (i: x.len) {
+    repeat (j: x.len) {
+      repeat (k: x.len) {
+        PHASE(((2 * pi) * (2 ** ((i + j) + k))) / N, x[i]);
+      }
+    }
+  }
+}
+
+//applying discrete log function to create trap-door claw free function x1,x2
+qfunc discrete_log_oracle(g_generator: int, x_element: int, N_modulus: int, x1: qbit[], x2: qbit[], output func_res: qbit[]) {
+  allocate(ceiling(log(N_modulus, 2)), func_res);
+  inplace_prepare_int(1, func_res);
+  modular_exp(N_modulus, x_element, func_res, x1);
+  modular_exp(N_modulus, g_generator, func_res, x2);
+}
+
+
+// Function for Doubly-controlled phase rotation 
+qfunc ccmod_add(N: int, y: qbit[], x1: qbit, x2: qbit, aux: qbit) {
+  ctrl: qbit[2];
+  {x1, x2} -> ctrl; // Pack x1 and x2 into a control qubit array
+  control (ctrl) {
+    phase_rot(y, N); // Apply phase rotation controlled by x1 and x2
+  }
+  ctrl -> {x1, x2}; // Unpack control qubits
+}
+
+
+qfunc main(output b: qnum, output c: qbit[8], output ctrl: qbit[2], output aux: qbit) {
+  // Quantum registers for the discrete log oracle
+  x1: qbit[];
+  x2: qbit[];
+  func_res: qbit[];  // Declaration without allocation
+
+  // Allocate quantum registers for x1 and x2
+  allocate(ceiling(log(7, 2)), x1);
+  allocate(ceiling(log(7, 2)), x2);
+
+  // Allocate registers for main operations
+  allocate(8, c);
+  allocate(1, b);
+  allocate(2, ctrl);
+  allocate(1, aux);
+
+  // Prepare the qubit 'b' in a specific integer state, necessary for subsequent QFT
+  inplace_prepare_int(8, b);
+  X(ctrl[0]);  // Set control qubits to |1> state
+  X(ctrl[1]);
+
+  // Execute the discrete logarithm oracle computation
+  // Note: func_res is allocated and initialized within the oracle function
+  discrete_log_oracle(3, 2, 7, x1, x2, func_res);
+// Quantum Fourier Transform followed by controlled modular addition
+  within {
+    qft(b);
+  } apply {
+    ccmod_add(7, c, ctrl[0], ctrl[1], aux);
+  }
+}

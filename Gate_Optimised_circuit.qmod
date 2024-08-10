@@ -1,0 +1,35 @@
+qfunc doubly_controlled_increment(q: qbit[], ctrl1: qbit, ctrl2: qbit, aux: qbit) {
+  // Implementing the increment under double control manually
+  control (ctrl1) {
+    control (ctrl2) {
+      X(aux);  // This simulates the doubly-controlled increment operation
+    }
+  }
+}
+
+
+
+
+qfunc qft_and_operations(q: qbit[], ctrl1: qbit, ctrl2: qbit, aux: qbit) {
+  // Apply QFT, followed by controlled operations, and inverse QFT
+  within {
+    qft(q);
+  } apply {
+    doubly_controlled_increment(q, ctrl1, ctrl2, aux);
+  }
+}
+
+qfunc main() {
+  q: qbit[4];  // Number of qubits for the main register
+  ctrl1: qbit;  // First control qubit
+  ctrl2: qbit;  // Second control qubit
+  aux: qbit;    // Auxiliary qubit
+
+  allocate(4, q);
+  allocate(1, ctrl1);
+  allocate(1, ctrl2);
+  allocate(1, aux);
+
+  // Initialize and apply QFT-based operations
+  qft_and_operations(q, ctrl1, ctrl2, aux);
+}

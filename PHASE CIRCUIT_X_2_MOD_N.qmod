@@ -1,0 +1,33 @@
+qfunc phase_rot(x: qbit[], N: int) {
+  repeat (i: x.len) {
+    repeat (j: x.len) {
+      repeat (k: x.len) {
+        PHASE(((2 * pi) * (2 ** ((i + j) + k))) / N, x[i]);
+      }
+    }
+  }
+}
+
+qfunc ccmod_add(N: int, y: qbit[], c1: qbit, c2: qbit, aux: qbit) {
+  ctrl: qbit[];
+  {c1, c2} -> ctrl;
+  control (ctrl) {
+    phase_rot(y, N);
+  }
+  ctrl -> {c1, c2};
+}
+
+qfunc main(output b: qnum, output c: qbit[8], output ctrl: qbit[2], output aux: qbit) {
+  allocate(8, c);
+  allocate(1, b);
+  allocate(2, ctrl);
+  allocate(1, aux);
+  inplace_prepare_int(8, b);
+  X(ctrl[0]);
+  X(ctrl[1]);
+  within {
+    qft(b);
+  } apply {
+    ccmod_add(8, c, ctrl[0], ctrl[1], aux);
+  }
+}

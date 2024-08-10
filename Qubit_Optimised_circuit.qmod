@@ -1,0 +1,26 @@
+qfunc controlled_rotation(q: qbit[], j: int, k: int, N: int) {
+  // Apply phase rotation using the formula from the diagram
+  PHASE((2 * pi * (2 ** (j + k))) / N, q[j]);
+}
+
+qfunc modular_exponentiation(q: qbit[], aux: qbit, N: int) {
+  // Implement the double loop structure for the controlled rotation
+  repeat (j: q.len) {
+    repeat (k: q.len) {
+      controlled_rotation(q, j, k, N);
+    }
+  }
+  // Apply Hadamard and Rk gates around the exponentiation logic
+  H(aux);
+  // Assuming Rk is similar to controlled rotation or a custom gate based on the diagram
+  controlled_rotation(q, 0, 0, N);  // Simplified call
+  H(aux);
+}
+
+qfunc main() {
+  q: qbit[3];  // Number of qubits optimized
+  aux: qbit;   // Auxiliary qubit
+  allocate(3, q);
+  allocate(1, aux);
+  modular_exponentiation(q, aux, 15);  // Example with N=15
+}
